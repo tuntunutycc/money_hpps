@@ -2,10 +2,10 @@
 
 ## အရင် Telegram ပဲ စမ်းချင်ရင် (MOCK)
 
-Railway Variables မှာ ဒီ ၃ ခုပဲ ထည့်:
+Railway Variables မှာ ဒီတွေ ထည့်:
 
 - `TELEGRAM_BOT_TOKEN`
-- `ALLOWED_TELEGRAM_IDS`
+- `ALLOWED_TELEGRAM_USERNAMES` = `akmdeep` (သို့မဟုတ် `ALLOWED_TELEGRAM_IDS`)
 - `MOCK_MODE` = `true`
 
 Sheet မလိုသေးဘူး။ မှတ်တမ်းက memory ထဲပဲ — redeploy/restart ရင် ပျက်မယ်။  

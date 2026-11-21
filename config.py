@@ -22,17 +22,24 @@ def _truthy(name: str, default: str = "false") -> bool:
     return os.getenv(name, default).strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _split_csv(raw: str) -> list[str]:
+    return [part.strip() for part in raw.split(",") if part.strip()]
+
+
 TELEGRAM_BOT_TOKEN = _required("TELEGRAM_BOT_TOKEN")
 
-_raw_ids = _required("ALLOWED_TELEGRAM_IDS")
 ALLOWED_TELEGRAM_IDS: set[int] = set()
-for part in _raw_ids.split(","):
-    part = part.strip()
-    if part:
-        ALLOWED_TELEGRAM_IDS.add(int(part))
+for part in _split_csv(os.getenv("ALLOWED_TELEGRAM_IDS", "")):
+    ALLOWED_TELEGRAM_IDS.add(int(part))
 
-if not ALLOWED_TELEGRAM_IDS:
-    raise RuntimeError("ALLOWED_TELEGRAM_IDS must contain at least one Telegram user ID")
+ALLOWED_TELEGRAM_USERNAMES: set[str] = set()
+for part in _split_csv(os.getenv("ALLOWED_TELEGRAM_USERNAMES", "")):
+    ALLOWED_TELEGRAM_USERNAMES.add(part.lstrip("@").lower())
+
+if not ALLOWED_TELEGRAM_IDS and not ALLOWED_TELEGRAM_USERNAMES:
+    raise RuntimeError(
+        "Set ALLOWED_TELEGRAM_IDS and/or ALLOWED_TELEGRAM_USERNAMES"
+    )
 
 # MOCK_MODE=true → store ledger in memory (no Google Sheets needed)
 MOCK_MODE = _truthy("MOCK_MODE")
@@ -44,6 +51,14 @@ if not MOCK_MODE and not GOOGLE_SHEETS_ID:
     raise RuntimeError(
         "Set GOOGLE_SHEETS_ID, or set MOCK_MODE=true to test without Sheets"
     )
+
+
+def is_allowed_user(*, user_id: int, username: str | None) -> bool:
+    if user_id in ALLOWED_TELEGRAM_IDS:
+        return True
+    if username and username.lower() in ALLOWED_TELEGRAM_USERNAMES:
+        return True
+    return False
 
 
 def load_service_account_info() -> dict:

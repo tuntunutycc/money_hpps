@@ -50,7 +50,9 @@ def allowed_only(
     @wraps(handler)
     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         user = update.effective_user
-        if user is None or user.id not in config.ALLOWED_TELEGRAM_IDS:
+        if user is None or not config.is_allowed_user(
+            user_id=user.id, username=user.username
+        ):
             if update.message:
                 await update.message.reply_text(
                     "သင့်မှာ ဒီ bot သုံးခွင့် မရှိပါ။ Admin ကို ဆက်သွယ်ပါ။"
