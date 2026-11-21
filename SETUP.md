@@ -1,6 +1,19 @@
 # Credential setup (သင်ကိုယ်တိုင် လုပ်ရမယ့်အပိုင်း)
 
-Code ရေးပြီးသား။ အောက်ပါ credentials ရပြီးမှ bot စ run နိုင်မယ်။
+## အရင် Telegram ပဲ စမ်းချင်ရင် (MOCK)
+
+Railway Variables မှာ ဒီ ၃ ခုပဲ ထည့်:
+
+- `TELEGRAM_BOT_TOKEN`
+- `ALLOWED_TELEGRAM_IDS`
+- `MOCK_MODE` = `true`
+
+Sheet မလိုသေးဘူး။ မှတ်တမ်းက memory ထဲပဲ — redeploy/restart ရင် ပျက်မယ်။  
+Sheet ရရင် `MOCK_MODE` ဖျက် (သို့မဟုတ် `false`) ပြီး Google vars ထည့်။
+
+---
+
+အောက်ပါက Sheet ချိတ်မယ့် အပြည့်အစုံ setup:
 
 ## 1. Telegram Bot Token + Staff IDs
 

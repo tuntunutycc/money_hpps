@@ -18,9 +18,11 @@ def _required(name: str) -> str:
     return value
 
 
+def _truthy(name: str, default: str = "false") -> bool:
+    return os.getenv(name, default).strip().lower() in {"1", "true", "yes", "on"}
+
+
 TELEGRAM_BOT_TOKEN = _required("TELEGRAM_BOT_TOKEN")
-GOOGLE_SHEETS_ID = _required("GOOGLE_SHEETS_ID")
-GOOGLE_SHEET_NAME = os.getenv("GOOGLE_SHEET_NAME", "Sheet1").strip() or "Sheet1"
 
 _raw_ids = _required("ALLOWED_TELEGRAM_IDS")
 ALLOWED_TELEGRAM_IDS: set[int] = set()
@@ -31,6 +33,17 @@ for part in _raw_ids.split(","):
 
 if not ALLOWED_TELEGRAM_IDS:
     raise RuntimeError("ALLOWED_TELEGRAM_IDS must contain at least one Telegram user ID")
+
+# MOCK_MODE=true → store ledger in memory (no Google Sheets needed)
+MOCK_MODE = _truthy("MOCK_MODE")
+
+GOOGLE_SHEETS_ID = os.getenv("GOOGLE_SHEETS_ID", "").strip()
+GOOGLE_SHEET_NAME = os.getenv("GOOGLE_SHEET_NAME", "Sheet1").strip() or "Sheet1"
+
+if not MOCK_MODE and not GOOGLE_SHEETS_ID:
+    raise RuntimeError(
+        "Set GOOGLE_SHEETS_ID, or set MOCK_MODE=true to test without Sheets"
+    )
 
 
 def load_service_account_info() -> dict:

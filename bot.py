@@ -13,7 +13,7 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 import config
-from sheets import Ledger
+from sheets import create_ledger
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
@@ -21,7 +21,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-ledger = Ledger()
+ledger = create_ledger()
 
 
 def _start_health_server() -> None:
@@ -86,8 +86,14 @@ def _format_money(value: float) -> str:
 
 @allowed_only
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    mode_line = (
+        "\n⚠️ MOCK mode — Sheet မချိတ်သေး၊ ယာယီမှတ်တမ်းသာ (restart ရင် ပျက်)\n"
+        if config.MOCK_MODE
+        else "\n"
+    )
     await update.message.reply_text(
-        "ငွေစာရင်း bot မှ ကြိုဆိုပါတယ်။\n\n"
+        "ငွေစာရင်း bot မှ ကြိုဆိုပါတယ်။"
+        f"{mode_line}\n"
         "အမိန့်များ:\n"
         "/in <ပမာဏ> [မှတ်ချက်] — ငွေသွင်း\n"
         "/out <ပမာဏ> [မှတ်ချက်] — ငွေထုတ်\n"
@@ -107,8 +113,9 @@ async def cmd_in(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             amount=amount,
             note=note,
         )
+        mock_tag = " (mock)" if config.MOCK_MODE else ""
         await update.message.reply_text(
-            f"✅ သွင်း: {_format_money(amount)}\n"
+            f"✅ သွင်း: {_format_money(amount)}{mock_tag}\n"
             f"မှတ်ချက်: {note}\n"
             f"လက်ကျန်: {_format_money(balance)}"
         )
@@ -116,7 +123,7 @@ async def cmd_in(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(f"❌ {exc}")
     except Exception:
         logger.exception("Failed /in")
-        await update.message.reply_text("❌ Spreadsheet ရေးမရပါ။ နောက်မှ ထပ်ကြိုးစားပါ။")
+        await update.message.reply_text("❌ စာရင်း ရေးမရပါ။ နောက်မှ ထပ်ကြိုးစားပါ။")
 
 
 @allowed_only
@@ -130,8 +137,9 @@ async def cmd_out(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             amount=amount,
             note=note,
         )
+        mock_tag = " (mock)" if config.MOCK_MODE else ""
         await update.message.reply_text(
-            f"✅ ထုတ်: {_format_money(amount)}\n"
+            f"✅ ထုတ်: {_format_money(amount)}{mock_tag}\n"
             f"မှတ်ချက်: {note}\n"
             f"လက်ကျန်: {_format_money(balance)}"
         )
@@ -139,7 +147,7 @@ async def cmd_out(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(f"❌ {exc}")
     except Exception:
         logger.exception("Failed /out")
-        await update.message.reply_text("❌ Spreadsheet ရေးမရပါ။ နောက်မှ ထပ်ကြိုးစားပါ။")
+        await update.message.reply_text("❌ စာရင်း ရေးမရပါ။ နောက်မှ ထပ်ကြိုးစားပါ။")
 
 
 @allowed_only
